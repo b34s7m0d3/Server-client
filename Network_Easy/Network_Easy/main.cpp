@@ -1,0 +1,40 @@
+#include "ServerGame.h"
+#include "ClientGame.h"
+#include <process.h> // used for multi-threading
+
+void serverLoop(void *);
+void clientLoop(void);
+
+ServerGame * server;
+ClientGame * client;
+
+int main() {
+
+	// initialize the server
+	server = new ServerGame();
+
+	// create thread with arbitrary argument for the run function
+	_beginthread(serverLoop, 0, (void*)12);
+
+	// initialize the client
+	client = new ClientGame();
+
+	clientLoop();
+}
+
+void serverLoop(void* arg) 
+{
+	while (true) 
+	{
+		server->update();
+	}
+}
+
+void clientLoop(void)
+{
+	while (true) 
+	{
+		// do game stuff
+		// will later run client->update();
+	}
+}

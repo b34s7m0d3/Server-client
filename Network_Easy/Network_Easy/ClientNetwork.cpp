@@ -13,7 +13,7 @@ ClientNetwork::ClientNetwork()
 	// holds address info for socket to connect to
 	struct addrinfo *result = NULL,
 					*ptr = NULL,
-					*hints;
+					hints;
 
 	// initialize Winsock
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaDATA);
@@ -25,7 +25,7 @@ ClientNetwork::ClientNetwork()
 
 	// set address info
 	ZeroMemory(&hints, sizeof(hints));
-	hints.ai_family = AF_UNSPEC;
+	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP; // TCP connection !!!
 
@@ -70,6 +70,21 @@ ClientNetwork::ClientNetwork()
 		exit(1);
 	}
 
+	// set the mode of the socket to be nonblocking
+	u_long iMode = 1;
+
+	iResult = ioctlsocket(ConnectSocket, FIONBIO, &iMode);
+	if (iResult == SOCKET_ERROR) {
+		printf("ioctlsocket failed with error: %d\n", WSAGetLastError());
+		closesocket(ConnectSocket);
+		WSACleanup();
+		exit(1);
+	}
+
+	// disable nagle
+	char value = 1;
+	setsockopt(ConnectSocket, IPPROTO_TCP, TCP_NODELAY, &value, sizeof(value));
+	
 }
 
 
